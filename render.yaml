@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: chat-backend
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: MONGO_URI
+        sync: false
