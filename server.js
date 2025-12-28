@@ -56,9 +56,7 @@ app.get('/api/messages', async (req, res) => {
             res.status(500).json({ error: 'Failed to fetch messages' });
         }
     } else {
-        res.json([
-            { text: 'MongoDB not connected', senderId: 'System' }
-        ]);
+        res.json([]);
     }
 });
 
