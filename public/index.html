@@ -37,12 +37,13 @@
     }
   })
   socket.on('chat message',(msg)=>{
-
+ 
      const li = document.createElement('li');
-         li.textContent= msg;
+         // Handle object or string message
+         const text = (typeof msg === 'object' && msg.text) ? msg.text : msg;
+         li.textContent = text;
          messages.appendChild(li);
-         <!-- window.scrollTo(0,document.body.scrollHeight); -->
- console.log('connected',socket.id)
+         window.scrollTo(0,document.body.scrollHeight);
   })
   socket.on('connect',()=>{
     console.log('connected:', socket.id);
