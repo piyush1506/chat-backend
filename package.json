@@ -1,0 +1,16 @@
+{
+  "name": "chat",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "Chat backend for Flutter app",
+  "dependencies": {
+    "express": "^4.22.1",
+    "socket.io": "^4.8.3",
+    "cors": "^2.8.5"
+  }
+}
