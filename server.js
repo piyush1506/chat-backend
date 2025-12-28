@@ -1,35 +1,36 @@
 const express = require('express');
-const http = require('http');
+const mongoose = require('mongoose');
 const cors = require('cors');
-const { Server } = require('socket.io');
 
 const app = express();
-const server = http.createServer(app);
 
-app.use(cors({ origin: '*' }));
+// Middleware
+app.use(cors());
 app.use(express.json());
 
-const io = new Server(server, {
-  cors: { origin: '*' }
-});
+// MongoDB connection
+mongoose.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log('✅ Connected to MongoDB'))
+.catch(err => console.log('❌ MongoDB connection error:', err));
 
-io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
+// Example data (replace with your DB model later)
+const messages = [
+    { id: 1, text: 'Hello from Render!' },
+    { id: 2, text: 'This is your /api/messages route.' }
+];
 
-  socket.on('chat_message', (msg) => {
-    io.emit('chat_message', msg);
-  });
-
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
-  });
-});
-
+// Routes
 app.get('/', (req, res) => {
-  res.json({ status: 'Backend running on Render 🚀' });
+    res.json({ status: "Backend running on Render 🚀" });
 });
 
-const PORT = process.env.PORT || 9000;
-server.listen(PORT, () => {
-  console.log('Server running on port', PORT);
+app.get('/api/messages', (req, res) => {
+    res.json(messages);
 });
+
+// Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
