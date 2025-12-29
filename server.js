@@ -65,16 +65,49 @@ io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
 
     socket.on('chat message', async (msg, callback) => {
+        let data = msg;
+        try {
+            if (typeof msg === 'string' && msg.trim().startsWith('{')) {
+                try {
+                    data = JSON.parse(msg);
+                } catch (e) {
+                    // Fallback for Dart Map strings: {text: hi, senderId: user_...}
+                    const textMatch = msg.match(/text:\s*([^,}]+)/);
+                    const senderMatch = msg.match(/senderId:\s*([^,}]+)/);
+                    if (textMatch || senderMatch) {
+                        data = {
+                            text: textMatch ? textMatch[1].trim() : '',
+                            senderId: senderMatch ? senderMatch[1].trim() : ''
+                        };
+                    }
+                }
+            }
+        } catch (e) { }
+
+        let text = typeof data === 'string' ? data : (data.text || data.message || '');
+        let senderId = socket.id;
+
+        if (typeof data === 'object' && data !== null) {
+            senderId = data.senderId || socket.id;
+        }
+
+        console.log(`Message from ${senderId}: ${text}`);
+
         const messageData = {
-            text: msg,
-            senderId: socket.id,
+            id: new mongoose.Types.ObjectId().toString(), // Add unique ID
+            text: text,
+            senderId: senderId,
             timestamp: new Date()
         };
 
-        // Save to DB
-        if (mongoose.connection.readyState === 1) {
-            const newMessage = new Message(messageData);
-            await newMessage.save();
+        try {
+            // Save to DB
+            if (mongoose.connection.readyState === 1) {
+                const newMessage = new Message(messageData);
+                await newMessage.save();
+            }
+        } catch (err) {
+            console.error('Error saving message to DB:', err);
         }
 
         // Broadcast object instead of just string
